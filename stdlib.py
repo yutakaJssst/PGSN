@@ -29,7 +29,7 @@ class Cons(BuiltinFunction):
     def _applicable_args(self, args: Sequence[Term]):
         return isinstance(args[1], List)
 
-    def _apply_args(self, args: tuple[Term, List]):
+    def _apply_args(self, args: tuple[Term,...]):
         return evolve(args[1], terms=(args[0],) + args[1].terms)
 
 @frozen
@@ -434,6 +434,12 @@ _F = lambda_abs_vars((_foldr, _f, _acc, _list),
                      )
 foldr = fix(_F)
 fold = foldr
+
+_list1 = variable('list1')
+_list2 = variable('list2')
+concat = lambda_abs_vars(
+    (_list1, _list2),
+    foldr(lambda_abs_vars((_elem, _acc), cons(_elem)(_acc)), _list2, _list1))
 
 list_all = lambda_abs_vars(
     (_x, _y),

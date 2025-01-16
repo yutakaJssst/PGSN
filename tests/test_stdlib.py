@@ -19,6 +19,20 @@ def test_list():
     assert t3.fully_eval() == t.fully_eval()
 
 
+def test_concat():
+    a = stdlib.constant('a')
+    b = stdlib.constant('b')
+    c = stdlib.constant('c')
+    d = stdlib.constant('d')
+    t1 = stdlib.cons(a, stdlib.empty)
+    t2 = stdlib.list_term((b, c, d))
+    t = stdlib.concat(t1, t2)
+    assert t(0).fully_eval() == a.fully_eval()
+    assert t(1).fully_eval() == b.fully_eval()
+    assert t(2).fully_eval() == c.fully_eval()
+    assert t(3).fully_eval() == d.fully_eval()
+
+
 def test_integer():
     i1 = stdlib.integer(1)
     i2 = stdlib.integer(1)
