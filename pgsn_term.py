@@ -92,7 +92,7 @@ class Term(ABC):
         return evaluated
 
     # FIXME: Use contexts in intermediate steps, not terms
-    def fully_eval(self, steps=1000) -> Term:
+    def fully_eval(self, steps=100000) -> Term:
         t = self if not self.is_named else self.remove_name()
         for _ in range(steps):
             t_reduced = t.eval_or_none()

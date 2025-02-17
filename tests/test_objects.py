@@ -16,7 +16,7 @@ get_value_term = stdlib.lambda_abs(self,
                                    )
 # attrs1 = inherit(defaults)(record_term.record({'value': get_value_term}))
 attrs1 = stdlib.record({'a': stdlib.true, 'value': get_value_term})
-cls = object_term.define_class(name)(object_term.base_class)(attrs1)
+cls = object_term.define_class(name=name, parent=object_term.base_class, attrs=attrs1)
 label_instance = stdlib.string('_instance')
 test = stdlib.string('test')
 
@@ -39,10 +39,10 @@ def test_inherit():
     r = stdlib.add_attribute(stdlib.empty_record)(a)(zero)
     r = stdlib.add_attribute(r)(b)(one)
     r1 = stdlib.record({'c': two})
-    r2 = object_term.inherit(r)(r1)
-    r3 = object_term.inherit(r)(id(r1))
+    r2 = object_term.inherit(parent=r, attrs=r1)
+    r3 = object_term.inherit(parent=r, attrs=id(r1))
     r4 = stdlib.add_attribute(r1)(b)(zero)
-    r5 = object_term.inherit(r)(r4)
+    r5 = object_term.inherit(parent=r, attrs=r4)
     assert r2(a).fully_eval() == zero.fully_eval()
     assert r2(b).fully_eval() == one.fully_eval()
     assert r2(c).fully_eval() == two.fully_eval()
@@ -61,7 +61,7 @@ def test_class():
            {'a', 'value', '_object', '_class_name', '_parent'}
 
 
-cls1 = object_term.define_class(name1)(cls)(stdlib.empty_record)
+cls1 = object_term.define_class(name=name1, parent=cls, attrs=stdlib.empty_record)
 
 
 def test_subclass():
@@ -77,9 +77,9 @@ def test_subclass():
 attrs2 = stdlib.record({'b': b, 'c': c})
 attrs3 = stdlib.record({'a': stdlib.boolean(False), 'b': b, 'c': c})
 label_value = stdlib.string('value')
-obj1 = object_term.instantiate(cls)(stdlib.empty_record)
-obj2 = object_term.instantiate(cls)(attrs2)
-obj3 = object_term.instantiate(cls)(attrs3)
+obj1 = object_term.instantiate(cls=cls, attrs=stdlib.empty_record)
+obj2 = object_term.instantiate(cls=cls, attrs=attrs2)
+obj3 = object_term.instantiate(cls=cls, attrs=attrs3)
 
 
 def test_obj_instance():
@@ -105,7 +105,7 @@ def test_obj_labels():
     assert set(stdlib.
                overwrite_record(cls)(new_attr).fully_eval().attributes().keys()) == \
            {'a', 'value', '_object', '_class_name', '_instance', '_parent'}
-    assert set(inherit(cls)(new_attr).fully_eval().attributes().keys()) == \
+    assert set(inherit(parent=cls, attrs=new_attr).fully_eval().attributes().keys()) == \
            {'a', 'value', '_object', '_class_name', '_instance', '_parent'}
     assert set(obj1.fully_eval().attributes().keys()) == \
            {'a', 'value', '_object', '_class_name', '_instance', '_parent'}
