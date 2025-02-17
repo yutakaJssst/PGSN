@@ -173,11 +173,11 @@ class Variable(Term):
 
     @num.validator
     def _check_num(self, _, v):
-        assert self.is_named or v is not None
+        assert self.is_named or (v is not None and v >= 0)
 
     @name.validator
-    def _check_name(self, _, v):
-        assert not self.is_named or v is not None
+    def _check_name(self, _, name):
+        assert not self.is_named or name is not None
 
     @classmethod
     def from_name(cls, name:str):
@@ -221,8 +221,10 @@ class Abs(Term):
 
     @v.validator
     def _check_v(self, attribute, value):
-        assert self.is_named or value is None
-        assert not self.is_named or value.is_named and isinstance(value, Variable)
+        if self.is_named:
+            assert value is not None and value.is_named and isinstance(value, Variable)
+        else:
+            assert value is None
 
     @t.validator
     def _check_t(self, _, value):
@@ -466,7 +468,8 @@ class Context:
     # outermost leftmost reduction.
     def reduce_or_none(self) -> Context | None:
         if isinstance(self.head, Abs) and len(self.args) > 0:
-            head_substituted = self.head.t.subst(0, self.args[0]).shift(-1, 0)
+            head_substituted = (self.head.t.subst(0, self.args[0].shift(1, 0))
+                                .shift(-1, 0))
             return self.evolve(head=head_substituted, args=self.args[1:])
         if isinstance(self.head, BuiltinFunction) and self.head.applicable_args(self.args):
             reduced, rest = self.head.apply_args(self.args)
