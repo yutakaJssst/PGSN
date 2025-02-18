@@ -37,37 +37,30 @@ method = lambda_abs_vars((_obj, _label), _obj(_label)(_obj))
 the_one = _define_obj(stdlib.empty_record)
 
 # Prototyping
-inherit = lambda_abs_keywords({'parent': _parent, 'attrs': _attrs},
-                          stdlib.overwrite_record(_parent)(_attrs))
+inherit = lambda_abs_vars((_parent,_attrs), stdlib.overwrite_record(_parent)(_attrs))
 
 # Class-based OO
 # Class
 _label_class_name = stdlib.string('_class_name')
 _class = stdlib.variable('_class')
 
-define_class = lambda_abs_keywords(
-    {'name':_name, 'parent':_parent, 'attrs':_attrs},
-    let(_attrs, add_attribute(_attrs)(_label_class_name)(_name),
-        let(_attrs,  add_attribute(_attrs)(_label_parent)(_parent),
-            inherit(parent=_parent, attrs=_attrs)
-        )
-    )
-)
+define_class = lambda_abs_vars((_name, _parent, _attrs),
+                               let_vars(((_class, inherit(_parent, _attrs)),
+                                         (_class, stdlib.add_attribute(_class, _label_class_name, _name))),
+                                        stdlib.add_attribute(_class, _label_parent, _parent)
+                                   )
+                               )
 
 is_class = lambda_abs(_class, has_label(_class)(_label_class_name))
 
-base_class = define_class(name='BaseClass',
-                          parent=the_one,
-                          attrs=stdlib.empty_record)
+base_class = define_class('BaseClass', the_one, stdlib.empty_record)
 
 # Object
 _label_instance = stdlib.string('_instance')
-instantiate = lambda_abs_keywords(
-    {'cls': _class, 'attrs': _attrs},
-    (let(
-        _attrs, add_attribute(_attrs)(_label_instance)(_class),
-        inherit(parent=_class, attrs=_attrs)
-    )))
+instantiate = lambda_abs_vars((_class, _attrs),
+                              let(_obj, inherit(_class, _attrs),
+                                  add_attribute(_obj)(_label_instance)(_class)))
+
 is_obj = lambda_abs(_obj, has_label(_obj)(_label_instance))
 
 _class1 = stdlib.variable('_class1')
