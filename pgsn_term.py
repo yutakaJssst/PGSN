@@ -165,6 +165,8 @@ class Term(ABC):
             return t
         return App.build(t1=t, t2=kwarg, is_named=self.is_named)
 
+    def pretty(self):
+        return self.__str__()
 
 @frozen
 class Variable(Term):
@@ -490,26 +492,6 @@ class Context:
 @frozen
 class Data(Builtin, Generic[T], ABC):
     value: T = field(validator=helpers.not_none)
-
-    @classmethod
-    def nameless_repr(cls, value):
-        assert hasattr(value, '__repr__')
-        return cls.nameless(value=repr(value))
-
-    @classmethod
-    def nameless_str(cls, value):
-        assert hasattr(value, '__str__')
-        return cls.nameless(value=str(value))
-
-    @classmethod
-    def named_repr(cls, value):
-        assert hasattr(value, '__repr__')
-        return cls.named(value=repr(value))
-
-    @classmethod
-    def named_str(cls, value):
-        assert hasattr(value, '__str__')
-        return cls.named(value=str(value))
 
     def _eval_or_none(self):
         return None
