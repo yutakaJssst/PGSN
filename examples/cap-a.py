@@ -14,10 +14,7 @@ test_resources = variable('test_resources')
 evidences = variable('evidences')
 
 goals = variable('goals')
-immediate = lambda_abs(goals, strategy(description="immediate", sub_goals=goals))
 
-evd = variable('evidence')
-evidence_as_goal = lambda_abs(evd, goal(description=evd('description'), support=evd))
 
 xs = variable('xs')
 

@@ -40,3 +40,11 @@ assumption = lambda_abs_keywords(arguments={'description': _d},
                                  body=instantiate(assumption_class)(description=_d))
 context = lambda_abs_keywords(arguments={'description': _d},
                               body=instantiate(context_class)(description=_d))
+
+_goals = variable('goals')
+immediate = lambda_abs(_goals, strategy(description="immediate", sub_goals=_goals))
+
+_evd = variable('evidence')
+evidence_as_goal = lambda_abs(_evd, goal(description=_evd('description'), support=_evd))
+
+
