@@ -1,7 +1,5 @@
 import sys
 
-import pgsn_term
-
 sys.path.append("..")
 import json
 from gsn_term import *
@@ -26,23 +24,25 @@ xs = variable('xs')
 gd3 = lambda_abs(xs,
                  let_vars(
                      (
-                     (test_docs, map_term(lambda_abs(c,
-                                                     evidence_as_goal(
-                                                         evidence(description=format_string("Test doc for {c}", c=c)))), xs)),
-                    (test_resources, map_term(lambda_abs(c,
-                                                    evidence_as_goal(
-                                                        evidence(description=format_string("Test resources for {c}", c=c)))), xs)
+                         (test_docs, map_term(lambda_abs(c,
+                                                         evidence_as_goal(
+                                                             evidence(
+                                                                 description=format_string("Test doc for {c}", c=c)))),
+                                              xs)),
+                         (test_resources, map_term(lambda_abs(c,
+                                                              evidence_as_goal(
+                                                                  evidence(description=format_string(
+                                                                      "Test resources for {c}", c=c)))), xs)
+                          ),
+                         (evidences, cons(evidence_as_goal(evidence(description="E3.1...")),
+                                          concat(test_docs, test_resources)))
                      ),
-                     (evidences, cons(evidence_as_goal(evidence(description="E3.1...")),
-                                      concat(test_docs, test_resources)))
-                     ),
-                    goal(description="GD3: Security test is ...",
-                        context="N.D. devel. info. ...",
-                        support=immediate(evidences)
-                         )))
+                     goal(description="GD3: Security test is ...",
+                          context="N.D. devel. info. ...",
+                          support=immediate(evidences)
+                          )))
 
 cap_a_term = gd3(["C1", "C2", "C3"])
-
 
 # (λxs.goal(dsc:“GD3: Security test is ...”,
 # ctx:“N.D. devel. info. ...”,
