@@ -11,8 +11,6 @@ y = variable('y')
 xs = variable('xs')
 c = variable('c')
 
-cs = list_term((string("C1"), string("C2"), string("C3")))
-
 test_docs = variable('test_docs')
 test_resources = variable('test_resources')
 evidences = variable('evidences')
@@ -30,22 +28,20 @@ gd3 = lambda_abs(xs,
                      (
                      (test_docs, map_term(lambda_abs(c,
                                                      evidence_as_goal(
-                                                         evidence(description=format_string("Test doc for {c}",
-                                                                                            {'c':c})))), xs)),
-                    (test_docs, map_term(lambda_abs(c,
+                                                         evidence(description=format_string("Test doc for {c}", c=c)))), xs)),
+                    (test_resources, map_term(lambda_abs(c,
                                                     evidence_as_goal(
-                                                        evidence(description=format_string("Test resources for {c}",
-                                                                                            {'c': c})))), xs)
+                                                        evidence(description=format_string("Test resources for {c}", c=c)))), xs)
                      ),
                      (evidences, cons(evidence_as_goal(evidence(description="E3.1...")),
-                                        concat(test_docs, test_resources)))
+                                      concat(test_docs, test_resources)))
                      ),
                     goal(description="GD3: Security test is ...",
                         context="N.D. devel. info. ...",
                         support=immediate(evidences)
                          )))
 
-cap_a_term = gd3(cs)
+cap_a_term = gd3(["C1", "C2", "C3"])
 
 
 # (λxs.goal(dsc:“GD3: Security test is ...”,
