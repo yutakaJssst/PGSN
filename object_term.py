@@ -82,3 +82,17 @@ is_instance = lambda_abs_vars(
                              (_obj, _class),
                              is_subclass(_obj(_label_instance))(_class)
 )
+
+
+def prettify(obs: Term):
+    def exclude(s):
+        return len(s) == 0 or s[0] == '_'
+    printable = obs.__repr__()
+    if isinstance(obs, Record):
+        printable = {k: prettify(v) for (k, v) in obs.attributes().items() if not exclude(k)}
+    if isinstance(obs, List):
+        printable = [prettify(v) for v in obs.terms]
+    return printable
+
+
+

@@ -1,7 +1,10 @@
 import sys
 
+import object_term
+
 sys.path.append("..")
 import json
+import pprint
 from gsn_term import *
 import gsn
 
@@ -47,6 +50,8 @@ if __name__ == '__main__':
     # n = gsn.pgsn_to_gsn(evidence_class, steps=10000)
     # print(json.dumps(gsn.python_val(n), sort_keys=True, indent=4))
     #print(s('sub_goals').fully_eval())
-    print(system.fully_eval(steps=10000))
-    n = gsn.pgsn_to_gsn(system, steps=10000)
-    print(json.dumps(gsn.python_val(n), sort_keys=True, indent=4))
+    system_evaluated = system.fully_eval()
+    pprint.pprint(object_term.prettify(system_evaluated))
+    n = gsn.pgsn_to_gsn(system_evaluated, steps=10000)
+    js = json.dumps(gsn.python_val(n), sort_keys=True, indent=4)
+    print(js)
