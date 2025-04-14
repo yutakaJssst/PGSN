@@ -1,0 +1,9 @@
+name: PGSN-dev
+channels:
+  - conda-forge
+dependencies:
+  - pytest
+  - pluggy
+  - iniconfig
+  - tomli
+  - typeguard
