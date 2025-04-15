@@ -190,3 +190,6 @@ You can adapt these techniques to build domain-specific GSN templates, automate 
 ##  License
 
 MIT License – see [LICENSE](LICENSE).
+
+Copyright: National Institute of Advanced Industrial Science and Technology (AIST) 2023-2024,
+Yoriyuki Yamagata 2025
