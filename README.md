@@ -175,6 +175,22 @@ These advanced examples demonstrate how to:
 
 You can adapt these techniques to build domain-specific GSN templates, automate assurance case generation, or validate structural constraints programmatically.
 
+## Summary of Common Constructs
+
+| Construct                    | Description                             |
+|-----------------------------|-----------------------------------------|
+| `goal(...)`                 | Defines a GSN Goal                      |
+| `strategy(...)`             | Logical inference for a Goal            |
+| `evidence(...)`             | Data supporting a Goal                  |
+| `context(...)`              | Context for a Goal or Strategy          |
+| `assumption(...)`           | Declares an assumption                  |
+| `immediate(...)`            | Binds sub-goals directly                |
+| `map_term(...)`             | Functional mapping over list_term       |
+| `lambda_abs(...)`           | Lambda abstraction (positional)         |
+| `lambda_abs_keywords(...)`  | Lambda abstraction (keyword args)       |
+| `define_class(...)`         | Defines a new object-based Goal class   |
+| `instantiate(...)`          | Instantiates an object-based Goal       |
+
 ## Architecture
 
 | Layer    | Component                  | Purpose                          |
