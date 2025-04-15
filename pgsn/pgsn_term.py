@@ -3,9 +3,8 @@ from typing import TypeAlias, Generic
 from abc import ABC, abstractmethod
 from attrs import field, frozen, evolve
 from typing import TypeVar
-from meta_info import MetaInfo
-import meta_info as meta
-import helpers
+from pgsn.meta_info import MetaInfo
+from pgsn import helpers, meta_info as meta
 
 Term: TypeAlias = "Term"
 T = TypeVar('T')
@@ -125,7 +124,7 @@ class Term(ABC):
 
     def subst(self, variable:int, term: Term) -> Term:
         substituted_or_none = self.subst_or_none(variable, term)
-        substituted = helpers.default(substituted_or_none,  self)
+        substituted = helpers.default(substituted_or_none, self)
         return substituted
 
     @abstractmethod

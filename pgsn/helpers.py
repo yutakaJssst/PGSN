@@ -1,6 +1,3 @@
-from inspect import signature
-
-
 def not_none(instance, attribute, value):
     assert value is not None
 

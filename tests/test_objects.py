@@ -1,8 +1,6 @@
-import pgsn_term
-import object_term
-from object_term import method, inherit, instantiate, is_subclass, is_instance
-import stdlib
-from stdlib import let, lambda_abs, lambda_abs_vars
+from pgsn import object_term, pgsn_term, stdlib
+from pgsn.object_term import method, inherit, is_subclass, is_instance
+from pgsn.stdlib import lambda_abs_vars
 
 a = stdlib.string('a')
 b = stdlib.string('b')
@@ -132,7 +130,7 @@ def test_obj_methods():
 parent = stdlib.variable('parent')
 attrs = stdlib.variable("attrs")
 inherit_x = lambda_abs_vars((parent, attrs),
-                          stdlib.overwrite_record(parent)(attrs))
+                            stdlib.overwrite_record(parent)(attrs))
 
 
 def test_obj_labels_x():

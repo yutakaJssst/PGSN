@@ -1,5 +1,5 @@
-from object_term import *
-from stdlib import lambda_abs_keywords
+from pgsn.object_term import *
+from pgsn.stdlib import lambda_abs_keywords
 
 gsn_class = define_class('GSN', base_class,gsn_type='Node')
 

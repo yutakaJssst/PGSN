@@ -1,6 +1,5 @@
-import stdlib
-from stdlib import *
-from stdlib import lambda_abs, lambda_abs_vars
+from pgsn.stdlib import *
+from pgsn import stdlib
 
 ClassTerm = Record
 ObjectTerm = Record
@@ -48,7 +47,7 @@ define_class = lambda_abs_vars((_name, _parent, _attrs),
                                let_vars(((_class, inherit(_parent, _attrs)),
                                          (_class, stdlib.add_attribute(_class, _label_class_name, _name))),
                                         stdlib.add_attribute(_class, _label_parent, _parent)
-                                   )
+                                        )
                                )
 
 is_class = lambda_abs(_class, has_label(_class)(_label_class_name))
@@ -92,6 +91,8 @@ def prettify(obs: Term):
         printable = {k: prettify(v) for (k, v) in obs.attributes().items() if not exclude(k)}
     if isinstance(obs, List):
         printable = [prettify(v) for v in obs.terms]
+    if isinstance(obs, pgsn_term.Data):
+        printable = obs.value
     return printable
 
 

@@ -1,8 +1,5 @@
-import meta_info
-import pgsn_term
-from pgsn_term import String, Integer, Record
-import stdlib
-from stdlib import let, lambda_abs_vars
+from pgsn import stdlib
+from pgsn.stdlib import let, lambda_abs_vars
 
 
 def test_record():
@@ -43,11 +40,11 @@ def test_self_reference2():
 
 def test_self_reference3():
     f1 = lambda_abs_vars((x, y),
-                        stdlib.overwrite_record(x)(stdlib.add_attribute(y)(label_2)(x))
-                    )
+                         stdlib.overwrite_record(x)(stdlib.add_attribute(y)(label_2)(x))
+                         )
     assert set(f1(r1)(r2).fully_eval().attributes().keys()) == {'l1', 'l2'}
 
 
 def test_self_reference4():
-    r = stdlib.overwrite_record(r1)(stdlib.add_attribute(r2)(label_2)(r1),)
+    r = stdlib.overwrite_record(r1)(stdlib.add_attribute(r2)(label_2)(r1), )
     assert set(r.fully_eval().attributes().keys()) == {'l1', 'l2'}

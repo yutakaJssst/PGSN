@@ -1,4 +1,4 @@
-import stdlib
+from pgsn import stdlib
 
 
 def test_data():

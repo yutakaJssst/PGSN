@@ -1,6 +1,6 @@
 
 from attrs import frozen, field
-import helpers
+from pgsn import helpers
 
 
 @frozen

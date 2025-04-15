@@ -1,7 +1,5 @@
-import meta_info
-import pgsn_term
-import stdlib
-from stdlib import let, lambda_abs, lambda_abs_vars
+from pgsn import meta_info, pgsn_term, stdlib
+from pgsn.stdlib import let, lambda_abs, lambda_abs_vars
 
 
 # import string_term

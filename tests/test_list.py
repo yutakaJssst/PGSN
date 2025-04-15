@@ -1,8 +1,5 @@
-
-import meta_info
-import pgsn_term
-import stdlib
-from pgsn_term import List
+from pgsn import stdlib
+from pgsn.pgsn_term import List
 
 
 def test_list():

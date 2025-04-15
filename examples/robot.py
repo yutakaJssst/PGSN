@@ -1,12 +1,10 @@
 import sys
 
-import object_term
-
 sys.path.append("..")
 import json
 import pprint
-from gsn_term import *
-import gsn
+from pgsn.gsn_term import *
+from pgsn import gsn, object_term
 
 robot = goal(description="There is no known vulnerability in the robot",
              support=strategy(description="Argument over each vulnerability",

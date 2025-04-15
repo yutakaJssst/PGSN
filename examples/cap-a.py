@@ -2,8 +2,8 @@ import sys
 
 sys.path.append("..")
 import json
-from gsn_term import *
-import gsn
+from pgsn.gsn_term import *
+from pgsn import gsn
 
 y = variable('y')
 xs = variable('xs')

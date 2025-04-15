@@ -1,6 +1,192 @@
 
-This is an experimental implementation of PGSN (Programmable GSN), proposed by Yamada et al. at SES2023.  The intended users are researcher and industry experts, for research and evaluation purpose only.
+# PGSN: Programmable Goal Structuring Notation
 
-The development of this software is supported by JSPS KAKENHI Grant Number 23H03376.
+Functional Programming for Assurance Case Generation
 
-Copyright 2024 National Institute of Advanced Industrial Science and Technology (AIST)
+[![Python](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+---
+
+## What is PGSN?
+
+**PGSN** is a functional programming language and platform for constructing and transforming structured assurance cases based on the **Goal Structuring Notation (GSN)**.
+
+**PGSN** is currently implementation as an embedded **functional language in Python**, but other implementation is planned.
+
+## Key Features
+
+-  **GSN Modeling Using Functional Programming**: Write assurance cases as functional programs
+-  **Templatable & Reusable**: Build assurance structures compositionally
+-  **Record-Oriented OO Model**: Class/inheritance for reusable node types
+-  **Security Aware**: Script runs inside an interpreter with a resource limit.
+
+## Installation
+
+Use conda
+```bash
+git clone https://github.com/yoriyuki/PGSN.git
+cd PGSN
+conda env create -f environment.yml -n PGSN
+```
+or pip
+```bash
+git clone https://github.com/yoriyuki/PGSN.git
+cd PGSN
+pip install -r requirements.txt
+```
+
+## Example
+
+```python
+from pprint import pprint
+
+from pgsn import *
+
+g = goal(
+    description=string("System is secure"),
+    support=strategy(
+        description=string("Break into sub-goals"),
+        sub_goals=[
+            goal(description="Input validated",
+                 support=evidence(description="Static analysis passed")),
+            goal(description="Output sanitized",
+                 support=evidence(description="Fuzzing test succeeded"))
+        ]
+    )
+)
+
+pprint(prettify(g.fully_eval()))
+```
+
+```shell
+% python -m examples.gsn
+{'assumptions': [],
+ 'contexts': [],
+ 'description': 'System is secure',
+ 'gsn_type': 'Goal',
+ 'support': {'description': 'Break into sub-goals',
+             'gsn_type': 'Strategy',
+             'sub_goals': [{'assumptions': [],
+                            'contexts': [],
+                            'description': 'Input validated',
+                            'gsn_type': 'Goal',
+                            'support': {'description': 'Static analysis passed',
+                                        'gsn_type': 'Evidence'}},
+                           {'assumptions': [],
+                            'contexts': [],
+                            'description': 'Output sanitized',
+                            'gsn_type': 'Goal',
+                            'support': {'description': 'Fuzzing test succeeded',
+                                        'gsn_type': 'Evidence'}}]}}
+```
+
+## Advanced Examples
+
+### Example 1: Reusable Goal Template with Evidence
+
+Define a reusable function that generates a goal node supported by an evidence node with the same description.
+
+```python
+from pprint import pprint
+
+from pgsn import prettify
+from pgsn.stdlib import *
+from pgsn.gsn_term import goal, evidence, strategy
+
+# Define a reusable goal+evidence template
+mk_goal_with_evidence = lambda_abs_keywords(
+    {"desc": variable("desc")},
+    goal(
+        description=variable("desc"),
+        support=evidence(description=variable("desc"))
+    )
+)
+
+# Apply the template to multiple goals
+g1 = mk_goal_with_evidence(desc=string("No hardcoded passwords"))
+g2 = mk_goal_with_evidence(desc=string("Input sanitized"))
+g3 = mk_goal_with_evidence(desc=string("Logging enabled"))
+
+# Compose a top-level goal with a strategy
+top = goal(
+    description=string("System is secure"),
+    support=strategy(
+        description=string("Apply security principles"),
+        sub_goals=[g1, g2, g3]
+    )
+)
+
+pprint(prettify(top.fully_eval()))
+```
+
+### Example 2: Auto-expanding Multiple Goals with `map_term`
+
+Use `map_term` to generate multiple sub-goals from a list of requirements dynamically.
+
+```python
+from pprint import pprint
+
+from pgsn.gsn_term import *
+
+requirements = list_term((
+    string("Firewall enabled"),
+    string("Encrypted communication"),
+    string("Access control active")
+))
+
+goal_template = lambda_abs(variable("desc"),
+    goal(description=variable("desc"),
+         support=evidence(description=variable("desc")))
+)
+
+goals = map_term(goal_template, requirements)
+
+secure_goal = goal(
+    description=string("Security requirements fulfilled"),
+    support=immediate(goals)
+)
+
+pprint(prettify(secure_goal.fully_eval()))
+```
+
+### Example 3: Class-based Node Composition Using Object System
+
+Use `object_term.py` to define a custom goal class and instantiate it with additional metadata.
+
+```python
+from pgsn.object_term import *
+
+# Define a custom subclass of Goal
+CustomGoal = define_class("CustomGoal", goal_class,
+                          record({"project": string("Alpha")}))
+
+g = instantiate(CustomGoal, record({
+    "description": string("Secure connection established"),
+    "support": evidence(description="Verified by audit")
+}))
+
+print(prettify(g.fully_eval()))
+```
+
+These advanced examples demonstrate how to:
+
+| Purpose | Technique |
+|---------|-----------|
+| Template reuse | Define lambda abstractions and keyword arguments |
+| Bulk generation | Use `map_term` over lists |
+| Metadata handling | Extend GSN nodes via custom classes |
+
+You can adapt these techniques to build domain-specific GSN templates, automate assurance case generation, or validate structural constraints programmatically.
+
+## Architecture
+
+| Layer    | Component                  | Purpose                          |
+|----------|----------------------------|----------------------------------|
+| Core     | `pgsn_term.py`             | Lambda calculus interpreter      |
+| DSL      | `stdlib.py`, `gsn_term.py` | Human-friendly API to define GSN |
+| OO Layer | `object_term.py`           | Reusable GSN node types          |
+
+##  License
+
+MIT License – see [LICENSE](LICENSE).

@@ -1,7 +1,5 @@
-import os
-import sys
 #sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-import stdlib
+from pgsn import stdlib
 import cProfile
 
 def test_fold():

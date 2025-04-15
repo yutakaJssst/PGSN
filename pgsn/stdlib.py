@@ -1,10 +1,9 @@
 from __future__ import annotations
-import helpers
+from pgsn import helpers, pgsn_term
 from typing import Sequence, Any
 from attrs import frozen, evolve, field
-from pgsn_term import BuiltinFunction, Term, Unary, Variable, Abs, App, String, Integer, \
+from pgsn.pgsn_term import BuiltinFunction, Term, Unary, Variable, Abs, App, String, Integer, \
     Boolean, List, Record, Constant
-import pgsn_term
 
 
 def check_type_list(arg: Term, types: list):

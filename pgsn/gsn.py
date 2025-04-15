@@ -2,9 +2,9 @@ from __future__ import annotations
 import uuid
 from abc import ABC, abstractmethod
 from attrs import field, frozen
-import helpers
-import pgsn_term
-import stdlib
+from pgsn import helpers
+from pgsn import pgsn_term
+from pgsn import stdlib
 
 
 @frozen
@@ -20,14 +20,26 @@ class GSN(ABC):
 class Assumption(GSN):
 
     def gsn_parts(self, parent_id, my_id):
-        raise NotImplemented
+        return [{
+            "partsID": my_id,
+            "parent": parent_id,
+            "children": [],
+            "kind": "Assumption",
+            "detail": self.description,
+        }]
 
 
 @frozen
 class Context(GSN):
 
     def gsn_parts(self, parent_id, my_id):
-        raise NotImplemented
+        return [{
+            "partsID": my_id,
+            "parent": parent_id,
+            "children": [],
+            "kind": "Context",
+            "detail": self.description,
+        }]
 
 
 @frozen
@@ -79,9 +91,9 @@ class Strategy(Support):
 
 @frozen
 class Goal(GSN):
-    assumptions: tuple[Assumption,...] = field()
-    contexts: tuple[Context,...] = field()
     support: Support = field(validator=helpers.not_none)
+    assumptions: tuple[Assumption,...] = field(default=tuple())
+    contexts: tuple[Context,...] = field(default=tuple())
 
     def gsn_parts(self, parent_id, my_id):
         support_id = str(uuid.uuid4())

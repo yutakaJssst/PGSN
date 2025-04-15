@@ -1,6 +1,5 @@
-import pgsn_term
-import stdlib
-from stdlib import lambda_abs, lambda_abs_vars, lambda_abs_keywords, plus, let
+from pgsn import pgsn_term, stdlib
+from pgsn.stdlib import lambda_abs, lambda_abs_vars, lambda_abs_keywords, plus, let
 
 
 def test_list():
@@ -201,10 +200,10 @@ r4 = stdlib.add_attribute(stdlib.empty_record)(label_f)(f)
 
 
 def test_overwrite_record_fun():
-    assert set(stdlib.overwrite_record(r1)(stdlib.empty_record).\
-        fully_eval().attributes().keys()) == {'a'}
-    assert set(stdlib.overwrite_record(r2)(stdlib.empty_record).\
-        fully_eval().attributes().keys()) == {'f'}
+    assert set(stdlib.overwrite_record(r1)(stdlib.empty_record). \
+               fully_eval().attributes().keys()) == {'a'}
+    assert set(stdlib.overwrite_record(r2)(stdlib.empty_record). \
+               fully_eval().attributes().keys()) == {'f'}
 
 
 eta = stdlib.lambda_abs_vars((y, z), stdlib.overwrite_record(y)(z))

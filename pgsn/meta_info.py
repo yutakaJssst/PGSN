@@ -1,4 +1,4 @@
-from debug_info import DebugInfo
+from pgsn.debug_info import DebugInfo
 from attrs import field, frozen
 
 
