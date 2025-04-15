@@ -162,7 +162,7 @@ pprint(prettify(secure_goal.fully_eval()))
 
 ### 例3：オブジェクト指向によるノード拡張
 
-Pythonの辞書は自動的に record に変換され、クラスベースのノード定義が可能です。
+GSNの各要素はクラスです。継承により拡張が可能です。
 
 ```python
 from pprint import pprint
