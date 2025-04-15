@@ -11,15 +11,16 @@ Functional Programming for Assurance Case Generation
 ## What is PGSN?
 
 **PGSN** is a functional programming language and platform for constructing and transforming structured assurance cases based on the **Goal Structuring Notation (GSN)**.
+Unlike standard GSN, which primarily consists of static diagrams, PGSN allows dynamic and structured generation of argument elements using a functional and object-oriented programming language.
 
-**PGSN** is currently implementation as an embedded **functional language in Python**, but other implementation is planned.
+**PGSN** is currently implemented as an **embedded language in Python**, but other implementations are planned.
 
 ## Key Features
 
 -  **GSN Modeling Using Functional Programming**: Write assurance cases as functional programs
--  **Templatable & Reusable**: Build assurance structures compositionally
--  **Record-Oriented OO Model**: Class/inheritance for reusable node types
--  **Security Aware**: Script runs inside an interpreter with a resource limit.
+-  **Reusable**: Build assurance structures compositionally
+-  **Object-Oriented**: Class/inheritance for reusable node types
+-  **Security Aware**: PGSN terms are executed in a resource-limited interpreter, ensuring safe evaluation of third-party code.
 
 ## Installation
 
@@ -104,15 +105,15 @@ mk_goal_with_evidence = lambda_abs_keywords(
 )
 
 # Apply the template to multiple goals
-g1 = mk_goal_with_evidence(desc=string("No hardcoded passwords"))
-g2 = mk_goal_with_evidence(desc=string("Input sanitized"))
-g3 = mk_goal_with_evidence(desc=string("Logging enabled"))
+g1 = mk_goal_with_evidence(desc="No hardcoded passwords")
+g2 = mk_goal_with_evidence(desc="Input sanitized")
+g3 = mk_goal_with_evidence(desc="Logging enabled")
 
 # Compose a top-level goal with a strategy
 top = goal(
-    description=string("System is secure"),
+    description="System is secure",
     support=strategy(
-        description=string("Apply security principles"),
+        description="Apply security principles",
         sub_goals=[g1, g2, g3]
     )
 )
@@ -129,11 +130,7 @@ from pprint import pprint
 
 from pgsn.gsn_term import *
 
-requirements = list_term((
-    string("Firewall enabled"),
-    string("Encrypted communication"),
-    string("Access control active")
-))
+requirements = ["Firewall enabled","Encrypted communication","Access control active"]
 
 goal_template = lambda_abs(variable("desc"),
     goal(description=variable("desc"),
@@ -143,7 +140,7 @@ goal_template = lambda_abs(variable("desc"),
 goals = map_term(goal_template, requirements)
 
 secure_goal = goal(
-    description=string("Security requirements fulfilled"),
+    description="Security requirements fulfilled",
     support=immediate(goals)
 )
 
@@ -155,18 +152,17 @@ pprint(prettify(secure_goal.fully_eval()))
 Use `object_term.py` to define a custom goal class and instantiate it with additional metadata.
 
 ```python
-from pgsn.object_term import *
+from pprint import pprint
+
+from pgsn import *
 
 # Define a custom subclass of Goal
-CustomGoal = define_class("CustomGoal", goal_class,
-                          record({"project": string("Alpha")}))
+CustomGoal = define_class("CustomGoal", goal_class, project="Alpha")
 
-g = instantiate(CustomGoal, record({
-    "description": string("Secure connection established"),
-    "support": evidence(description="Verified by audit")
-}))
+g = instantiate(CustomGoal, description="Secure connection established",
+    support=evidence(description="Verified by audit"))
 
-print(prettify(g.fully_eval()))
+pprint(prettify(g.fully_eval()))
 ```
 
 These advanced examples demonstrate how to:

@@ -2,11 +2,8 @@ from pprint import pprint
 
 from pgsn.gsn_term import *
 
-requirements = list_term((
-    string("Firewall enabled"),
-    string("Encrypted communication"),
-    string("Access control active")
-))
+requirements = ["Firewall enabled", "Encrypted communication", "Access control active"]
+
 
 goal_template = lambda_abs(variable("desc"),
     goal(description=variable("desc"),
@@ -16,7 +13,7 @@ goal_template = lambda_abs(variable("desc"),
 goals = map_term(goal_template, requirements)
 
 secure_goal = goal(
-    description=string("Security requirements fulfilled"),
+    description="Security requirements fulfilled",
     support=immediate(goals)
 )
 
