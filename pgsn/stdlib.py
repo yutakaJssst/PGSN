@@ -1,6 +1,6 @@
 from __future__ import annotations
 from pgsn import helpers, pgsn_term
-from typing import Sequence, Any
+from typing import Sequence, Any, Union
 from attrs import frozen, evolve, field
 from pgsn.pgsn_term import BuiltinFunction, Term, Unary, Variable, Abs, App, String, Integer, \
     Boolean, List, Record, Constant
@@ -127,10 +127,10 @@ class MultiArgFunction(BuiltinFunction):
     # Hack: arity has a default argument but the default value is invalid.
     # The object must be created by build class method.
     arity = field(default=0)
-    _keyword_args: dict[str, Term | None] = field(default={})
+    _keyword_args: dict[str, Union[Term, None]] = field(default={})
     # Hack: syntactically, body is an optional argument but must be specified otherwise
     # the runtime error occurs.
-    main: Term | None = field(default=None, validator=helpers.not_none)
+    main: Union[Term, None] = field(default=None, validator=helpers.not_none)
 
     def __attr_post_init__(self):
         assert all((var.is_named == self.is_named for var in self.positional_variable))
@@ -143,7 +143,7 @@ class MultiArgFunction(BuiltinFunction):
     def build(cls,
               is_named: bool,
               positional_vars: tuple[Variable, ...],
-              keyword_args: dict[str, Term | None],
+              keyword_args: dict[str, Union[Term, None]],
               body: Term):
         keywords = sorted(keyword_args.keys())
         main = body
@@ -292,21 +292,21 @@ class OverwriteRecord(BuiltinFunction):
         return Record.build(is_named=self.is_named, attributes=r)
 
 
-Printable = String | Integer
+from typing import Union
+Printable = Union[String, Integer]
 
 
 def _uncast(t: Term):
-    match t:
-        case pgsn_term.Data():
-            return t.value
-        case List():
-            terms = t.terms
-            return [value_of(t1) for t1 in terms]
-        case Record():
-            attr = t.attributes()
-            return {k: value_of(t1) for k, t1 in attr.items()}
-        case _:
-            raise ValueError(f'PGSN term {type(t)} does not normalizes a Python value')
+    if isinstance(t, pgsn_term.Data):
+        return t.value
+    elif isinstance(t, List):
+        terms = t.terms
+        return [value_of(t1) for t1 in terms]
+    elif isinstance(t, Record):
+        attr = t.attributes()
+        return {k: value_of(t1) for k, t1 in attr.items()}
+    else:
+        raise ValueError(f'PGSN term {type(t)} does not normalizes a Python value')
 
 
 class Formatter(BuiltinFunction):

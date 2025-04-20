@@ -1,12 +1,13 @@
 from __future__ import annotations
-from typing import TypeAlias, Generic
+from typing import Generic, Union
 from abc import ABC, abstractmethod
 from attrs import field, frozen, evolve
 from typing import TypeVar
 from pgsn.meta_info import MetaInfo
 from pgsn import helpers, meta_info as meta
 
-Term: TypeAlias = "Term"
+# In Python 3.10+, this would be: Term: TypeAlias = "Term"
+Term = "Term"  # Type alias for Term
 T = TypeVar('T')
 
 
@@ -26,26 +27,27 @@ class LambdaInterpreterError(Exception):
     pass
 
 
-Castable: TypeAlias = "Term | int | str | bool | list | dict | None"
+# In Python 3.10+, this would be: Castable: TypeAlias = "Term | int | str | bool | list | dict | None"
+Castable = "Term | int | str | bool | list | dict | None"  # Type alias for Castable
 
 
 def cast(x: Castable, is_named: bool) -> Term:
-    match x:
-        case Term():
-            return x
-        case int():
-            return Integer.build(is_named=is_named, value=x)
-        case str():
-            return String.build(is_named=is_named, value=x)
-        case bool():
-            return Boolean.build(is_named=is_named, value=x)
-        case list():
-            y = [cast(z, is_named=is_named) for z in x]
-            return List.build(is_named=is_named, terms=y)
-        case dict():
-            y = {k: cast(z, is_named=is_named) for k, z in x.items()}
-            return Record.build(is_named=is_named, attributes=y)
-        case _: assert False
+    if isinstance(x, Term):
+        return x
+    elif isinstance(x, int):
+        return Integer.build(is_named=is_named, value=x)
+    elif isinstance(x, str):
+        return String.build(is_named=is_named, value=x)
+    elif isinstance(x, bool):
+        return Boolean.build(is_named=is_named, value=x)
+    elif isinstance(x, list):
+        y = [cast(z, is_named=is_named) for z in x]
+        return List.build(is_named=is_named, terms=y)
+    elif isinstance(x, dict):
+        y = {k: cast(z, is_named=is_named) for k, z in x.items()}
+        return Record.build(is_named=is_named, attributes=y)
+    else:
+        assert False
 
 
 @frozen(kw_only=True)
@@ -112,10 +114,10 @@ class Term(ABC):
         return shifted
 
     @abstractmethod
-    def _subst_or_none(self, variable: int, term: Term) -> Term | None:
+    def _subst_or_none(self, variable: int, term: Term) -> Union[Term, None]:
         pass
 
-    def subst_or_none(self, variable: int, term: Term) -> Term | None:
+    def subst_or_none(self, variable: int, term: Term) -> Union[Term, None]:
         assert not self.is_named
         assert not term.is_named
         substituted = self._subst_or_none(variable, term)
@@ -169,8 +171,8 @@ class Term(ABC):
 
 @frozen
 class Variable(Term):
-    num: int | None = field(default=None)
-    name: str | None = field(default=None)
+    num: Union[int, None] = field(default=None)
+    name: Union[str, None] = field(default=None)
 
     @num.validator
     def _check_num(self, _, v):
@@ -184,7 +186,7 @@ class Variable(Term):
     def from_name(cls, name:str):
         return cls.named(name=name)
 
-    def evolve(self, num: int | None = None, name: str | None = None):
+    def evolve(self, num: Union[int, None] = None, name: Union[str, None] = None):
         if num is None and name is not None:
             return evolve(self, num=None, name=name, is_named=True)
         if num is not None and name is None:
@@ -204,7 +206,7 @@ class Variable(Term):
         else:
             return self.evolve(num=self.num+d)
 
-    def _subst_or_none(self, num, term) -> Term | None:
+    def _subst_or_none(self, num, term) -> Union[Term, None]:
         if self.num == num:
             return term
         else:
@@ -217,7 +219,7 @@ class Variable(Term):
 
 @frozen
 class Abs(Term):
-    v: Variable | None = field()
+    v: Union[Variable, None] = field()
     t: Term = field(validator=helpers.not_none)
 
     @v.validator
@@ -234,7 +236,7 @@ class Abs(Term):
     def __attr_post_init__(self):
         assert self.v.is_named == self.t.is_named
 
-    def evolve(self, t: Term, v: Variable | None = None):
+    def evolve(self, t: Term, v: Union[Variable, None] = None):
         if v is None and not t.is_named:
             return evolve(self, v=v, t=t, is_named=False)
         elif v is not None and v.is_named and t.is_named:
@@ -242,14 +244,14 @@ class Abs(Term):
         else:
             assert False
 
-    def _eval_or_none(self) -> Term | None:
+    def _eval_or_none(self) -> Union[Term, None]:
         t_evaluated = self.t.eval_or_none()
         return None if t_evaluated is None else self.evolve(t=t_evaluated)
 
     def _shift(self, num: int, cutoff: int) -> Term:
         return self.evolve(t=self.t.shift(num, cutoff + 1))
 
-    def _subst_or_none(self, var: int, term: Term) -> Term | None:
+    def _subst_or_none(self, var: int, term: Term) -> Union[Term, None]:
         term_shifted = term.shift(1, 0)
         substituted = self.t.subst_or_none(var + 1, term_shifted)
         if substituted is None:
@@ -292,7 +294,7 @@ class App(Term):
     def __attr_post_init__(self):
         assert self.t1.is_named == self.t2.is_named
 
-    def evolve(self, t1: Term | None = None, t2: Term | None = None):
+    def evolve(self, t1: Union[Term, None] = None, t2: Union[Term, None] = None):
         if t1 is None:
             t1 = self.t1
         if t2 is None:
@@ -324,7 +326,7 @@ class App(Term):
     def _shift(self, num: int, cutoff: int) -> Term:
         return self.evolve(t1=self.t1.shift(num, cutoff), t2=self.t2.shift(num, cutoff))
 
-    def _subst_or_none(self, var: int, term: Term) -> Term | None:
+    def _subst_or_none(self, var: int, term: Term) -> Union[Term, None]:
         t1_subst = self.t1.subst(var, term)
         t2_subst = self.t2.subst(var, term)
         if t1_subst is None and t2_subst is None:
@@ -346,7 +348,7 @@ class App(Term):
 class Builtin(Term):
     # hack.  the default is an invalid value
     arity: int = field(validator=[helpers.not_none, helpers.non_negative])
-    name: str | None = field()
+    name: Union[str, None] = field()
 
     @abstractmethod
     def _applicable_args(self, args: tuple[Term, ...]) -> bool:
@@ -375,13 +377,13 @@ class Constant(Builtin):
     name: str = field(validator=helpers.not_none)
     arity = 0
 
-    def _eval_or_none(self) -> Term | None:
+    def _eval_or_none(self) -> Union[Term, None]:
         return None
 
     def _shift(self, num: int, cutoff: int) -> Term:
         return self
 
-    def _subst_or_none(self, variable: int, term: Term) -> Term | None:
+    def _subst_or_none(self, variable: int, term: Term) -> Union[Term, None]:
         return None
 
     def _free_variables(self) -> set[str]:
@@ -467,7 +469,7 @@ class Context:
 
     # If None is returned, the reduction is terminated
     # outermost leftmost reduction.
-    def reduce_or_none(self) -> Context | None:
+    def reduce_or_none(self) -> Union[Context, None]:
         if isinstance(self.head, Abs) and len(self.args) > 0:
             head_substituted = (self.head.t.subst(0, self.args[0].shift(1, 0))
                                 .shift(-1, 0))
@@ -594,7 +596,7 @@ class Record(Unary):
     def build(cls, is_named: bool, attributes: dict[str, Term]):
         return cls(is_named=is_named, attributes=attributes.copy())
 
-    def evolve(self, is_named: bool | None = None, attributes: dict[str, Term] | None =None):
+    def evolve(self, is_named: Union[bool, None] = None, attributes: Union[dict[str, Term], None] =None):
         if attributes is None:
             attributes = self._attributes
         if is_named is None:

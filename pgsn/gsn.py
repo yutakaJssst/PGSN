@@ -112,44 +112,48 @@ undeveloped: Undeveloped = Undeveloped(description='Undeveloped')
 def _dict_to_gsn(v: dict):
     if 'gsn_type' not in v:
         raise ValueError('PGSN term does not normalizes a GSN')
-    match v['gsn_type']:
-        case 'Node':
-            raise ValueError('Node with unspecified kind')
-        case 'Support':
-            if v['description'] == 'Undeveloped':
-                return undeveloped
-            else:
-                raise ValueError(f'Support {v} without specific type')
-        case 'Evidence':
-            return Evidence(description=v['description'])
-        case 'Strategy':
-            if len(v['sub_goals']) == 0:
-                raise ValueError('Strategy must have more than one sub-goals')
-            sub_goals = [_dict_to_gsn(g) for g in v['sub_goals']]
-            if not all(isinstance(g, Goal) for g in sub_goals):
-                raise ValueError(f'Sub-goals {sub_goals} must be goals')
-            return Strategy(description=v['description'],
-                            sub_goals=tuple(sub_goals))
-        case 'Goal':
-            assumptions = [_dict_to_gsn(a) for a in v['assumptions']]
-            if not all(isinstance(a, Assumption) for a in assumptions):
-                raise ValueError('Assumptions must be assumptions')
-            contexts = [_dict_to_gsn(c) for c in v['contexts']]
-            if not all(isinstance(c, Assumption) for c in contexts):
-                raise ValueError('Contexts must be Contexts')
-            support = _dict_to_gsn(v['support'])
-            if not (isinstance(support, Strategy) or
-                    isinstance(support, Evidence) or
-                    support == undeveloped):
-                raise ValueError(f'support {support} must be either a strategy, an evidence or undeveloped')
-            return Goal(description=v['description'],
-                        assumptions=assumptions,
-                        contexts=contexts,
-                        support=support)
-        case 'Assumption':
-            return Assumption(description=v['description'])
-        case 'Context':
-            return Context(description=v['description'])
+    
+    gsn_type = v['gsn_type']
+    
+    if gsn_type == 'Node':
+        raise ValueError('Node with unspecified kind')
+    elif gsn_type == 'Support':
+        if v['description'] == 'Undeveloped':
+            return undeveloped
+        else:
+            raise ValueError(f'Support {v} without specific type')
+    elif gsn_type == 'Evidence':
+        return Evidence(description=v['description'])
+    elif gsn_type == 'Strategy':
+        if len(v['sub_goals']) == 0:
+            raise ValueError('Strategy must have more than one sub-goals')
+        sub_goals = [_dict_to_gsn(g) for g in v['sub_goals']]
+        if not all(isinstance(g, Goal) for g in sub_goals):
+            raise ValueError(f'Sub-goals {sub_goals} must be goals')
+        return Strategy(description=v['description'],
+                        sub_goals=tuple(sub_goals))
+    elif gsn_type == 'Goal':
+        assumptions = [_dict_to_gsn(a) for a in v['assumptions']]
+        if not all(isinstance(a, Assumption) for a in assumptions):
+            raise ValueError('Assumptions must be assumptions')
+        contexts = [_dict_to_gsn(c) for c in v['contexts']]
+        if not all(isinstance(c, Assumption) for c in contexts):
+            raise ValueError('Contexts must be Contexts')
+        support = _dict_to_gsn(v['support'])
+        if not (isinstance(support, Strategy) or
+                isinstance(support, Evidence) or
+                support == undeveloped):
+            raise ValueError(f'support {support} must be either a strategy, an evidence or undeveloped')
+        return Goal(description=v['description'],
+                    assumptions=assumptions,
+                    contexts=contexts,
+                    support=support)
+    elif gsn_type == 'Assumption':
+        return Assumption(description=v['description'])
+    elif gsn_type == 'Context':
+        return Context(description=v['description'])
+    else:
+        raise ValueError(f'Unknown GSN type: {gsn_type}')
 
 
 def pgsn_to_gsn(t: pgsn_term.Term, steps=1000):
